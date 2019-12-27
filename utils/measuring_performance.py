@@ -50,7 +50,7 @@ def plot_confusion_matrix(y_true, y_pred, normalize=False, class_names=('0', '1'
     fig, ax = plt.subplots(figsize=(4, 4))
     fmt = 'd'
     if normalize:        
-        matrix = conf_mat / conf_mat.sum(axis=1)[:, np.newaxis]
+        conf_mat = conf_mat / conf_mat.sum(axis=1)[:, np.newaxis]
         fmt = '.2%'
     sns.heatmap(conf_mat, cmap='coolwarm', annot=True, fmt=fmt, linewidths=0.5, square=True,
                 xticklabels=class_names, yticklabels=class_names, ax=ax)
