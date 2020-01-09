@@ -12,15 +12,15 @@ def _get_feature_to_index(num_feature_names, cat_feature_names, n_categories, us
     else:
         feature_to_index = {feature: i for i, feature in enumerate(num_feature_names)}
         j = 0
-        for feature, n in zip(cat_feature_names, n_categories):
-            for label in range(n):
+        for feature in cat_feature_names:
+            for label in range(n_categories[feature]):
                 feature_to_index['_'.join([feature, str(label)])] = len(num_feature_names) + j
                 j += 1
     return feature_to_index
 
 
 def dump_libsvm_file(X, y, file, num_feature_names, cat_feature_names, n_categories, use_field=False, decimals=6,
-                     use_hash=False, n_bins=1000):
+                     use_hash=False, n_bins=1000000):
     feature_to_index = _get_feature_to_index(num_feature_names, cat_feature_names, n_categories, use_field)
     with open(file, 'w') as f:
         for i, row in X.iterrows():
@@ -30,15 +30,15 @@ def dump_libsvm_file(X, y, file, num_feature_names, cat_feature_names, n_categor
                 field = ''.join([index, ':']) if use_field else ''
                 parsed_row = ''.join(
                     [parsed_row, ' ', index, ':', field, str(round(row[feature], decimals))])
-            for feature, n in zip(cat_feature_names, n_categories):
+            for feature in cat_feature_names:
                 if use_field:
                     field = feature_to_index[feature]
                     index = int(row[feature])
-                    index = _hash_str(str(index), n_bins) if use_hash and n > n_bins else index
+                    index = _hash_str(str(index), n_bins) if use_hash and n_categories[feature] > n_bins else index
                     parsed_row = ''.join([parsed_row, ' ', str(field), ':', str(index), ':1'])
                 else:
                     index = int(row[feature])
-                    index = _hash_str(str(index), n_bins) if use_hash and n > n_bins else index
+                    index = _hash_str(str(index), n_bins) if use_hash and n_categories[feature] > n_bins else index
                     index = feature_to_index['_'.join([feature, str(index)])]
                     parsed_row = ''.join([parsed_row, ' ', str(index), ':1'])
             f.write(parsed_row.lstrip() + '\n')
@@ -61,12 +61,13 @@ def _serialize_example(feature):
     return example_proto.SerializeToString()
 
 
-def dump_tfrecord_file(X, y, file, num_feature_names, cat_feature_names, decimals=6):
+def dump_tfrecord_file(X, y, file, num_feature_names, cat_feature_names, target_name=None, decimals=6):
     options = tf.io.TFRecordOptions(compression_type='GZIP')
     with tf.io.TFRecordWriter(path=file, options=options) as writer:
         parsed_row = dict()
         for i, row in X.iterrows():
-            parsed_row['label'] = _int64_feature(y.loc[i])
+            if y is not None:
+                parsed_row[target_name] = _int64_feature(y.loc[i])
             for feature in num_feature_names:
                 parsed_row[feature] = _float_feature(round(row[feature], decimals))
             for feature in cat_feature_names:

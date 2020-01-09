@@ -94,7 +94,7 @@ def plot_roc_curve(y_true, y_score):
     fpr, tpr, thresholds = roc_curve(y_true, y_score)
     auroc = roc_auc_score(y_true, y_score)
     fig, ax = plt.subplots(figsize=(6, 4))
-    ax.plot(fpr, tpr, color='mediumblue', linewidth=1, label='ROC Curve (AUROC: {0:0.4%})'.format(auroc))
+    ax.plot(fpr, tpr, color='mediumblue', linewidth=1.0, label='ROC Curve (AUROC: {0:0.4%})'.format(auroc))
     ax.plot([0.0, 1.0], [0.0, 1.0], color='orange', linestyle='--', linewidth=0.8)
     ax.set_xlabel('False Positive Rate')
     ax.set_ylabel('True Positive Rate')
