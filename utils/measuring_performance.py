@@ -8,7 +8,10 @@ plt.style.use('seaborn')
 
 
 def get_norm_entropy(y_true, y_score):
+    eps = 0.0001
     p = y_true.mean()
+    y_score = np.where(y_score < eps, eps, y_score)
+    y_score = np.where(y_score > 1.0 - eps, 1.0 - eps, y_score)
     return log_loss(y_true, y_score) / (-1.0 * (p * np.log(p) + (1.0 - p) * np.log(1.0 - p)))
 
 
