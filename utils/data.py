@@ -19,12 +19,15 @@ def _get_feature_to_index(num_feature_names, cat_feature_names, n_categories, us
     return feature_to_index
 
 
-def dump_libsvm_file(X, y, file, num_feature_names, cat_feature_names, n_categories, use_field=False, decimals=6,
+def dump_libsvm_file(X, y, file, num_feature_names, cat_feature_names, n_categories, use_field=False, decimals=8,
                      use_hash=False, n_bins=1000000):
     feature_to_index = _get_feature_to_index(num_feature_names, cat_feature_names, n_categories, use_field)
     with open(file, 'w') as f:
         for i, row in X.iterrows():
-            serialized_row = str(y.loc[i]) if y else ''
+            if y is not None:
+                serialized_row = str(y.loc[i])
+            else:
+                serialized_row = ''
             for feature in num_feature_names:
                 index = str(feature_to_index[feature])
                 field = ''.join([index, ':']) if use_field else ''
@@ -62,15 +65,15 @@ def _serialize_example(feature):
 
 
 def dump_tfrecord_file(X, y, file, num_feature_names, cat_feature_names, target_name=None, key_names=None,
-                       decimals=6, compression_type=None):
+                       decimals=8, compression_type=None):
     options = tf.io.TFRecordOptions(compression_type=compression_type)
     with tf.io.TFRecordWriter(path=file, options=options) as writer:
         serialized_row = dict()
         for i, row in X.iterrows():
-            if key_names:
+            if key_names is not None:
                 for key_name in key_names:
                     serialized_row[key_name] = _bytes_feature(row[key_name])
-            if y:
+            if y is not None:
                 serialized_row[target_name] = _int64_feature(y.loc[i])
             for feature in num_feature_names:
                 serialized_row[feature] = _float_feature(round(row[feature], decimals))

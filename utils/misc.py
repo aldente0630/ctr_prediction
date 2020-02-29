@@ -15,7 +15,7 @@ def load_pickle(file_path):
         
 
 @contextmanager
-def get_elapsed_time(format_string='Elapsed time: %.4f sec', verbose=True):
+def get_elapsed_time(format_string='Elapsed time: %d sec', verbose=True):
     start_time = time.perf_counter()
     yield
     elapsed_time = time.perf_counter() - start_time
