@@ -7,8 +7,7 @@ from sklearn.metrics import (average_precision_score, confusion_matrix, log_loss
 plt.style.use('seaborn')
 
 
-def get_norm_entropy(y_true, y_score):
-    eps = 0.0001
+def get_norm_entropy(y_true, y_score, eps=1e-08):
     p = y_true.mean()
     y_score = np.where(y_score < eps, eps, y_score)
     y_score = np.where(y_score > 1.0 - eps, 1.0 - eps, y_score)

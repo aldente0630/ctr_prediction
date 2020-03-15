@@ -20,7 +20,7 @@ def _get_feature_to_index(num_feature_names, cat_feature_names, n_categories, us
 
 
 def dump_libsvm_file(X, y, file, num_feature_names, cat_feature_names, n_categories, use_field=False, decimals=8,
-                     use_hash=False, n_bins=1000000):
+                     use_hash=False, n_bins=1e6):
     feature_to_index = _get_feature_to_index(num_feature_names, cat_feature_names, n_categories, use_field)
     with open(file, 'w') as f:
         for i, row in X.iterrows():
